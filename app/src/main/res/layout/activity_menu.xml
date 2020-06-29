@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MenuActivity">
+
+    <Button
+        android:id="@+id/scan"
+        android:layout_width="177dp"
+        android:layout_height="91dp"
+        android:layout_marginTop="60dp"
+        android:text="Scan"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/eventList"
+        android:layout_width="177dp"
+        android:layout_height="91dp"
+        android:layout_marginTop="32dp"
+        android:text="Event List"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/scan" />
+
+    <Button
+        android:id="@+id/newEvent"
+        android:layout_width="177dp"
+        android:layout_height="91dp"
+        android:layout_marginTop="60dp"
+        android:text="New Event"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/eventList" />
+</androidx.constraintlayout.widget.ConstraintLayout>
