@@ -1,3 +1,5 @@
 <resources>
-    <string name="app_name">AttRacker</string>
+    <string name="app_name">Attendance Tracker</string>
+    <string name="login_hint">Enter your username</string>
+    <string name="welcome_text">Welcome!</string>
 </resources>

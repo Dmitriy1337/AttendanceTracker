@@ -13,13 +13,14 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        Button login = findViewById(R.id.login);
-        final Intent loginIntent = new Intent(this,MenuActivity.class);
+        final Intent menuIntent = new Intent(this, MenuActivity.class);
 
-        login.setOnClickListener(new View.OnClickListener() {
+        Button loginBtn = findViewById(R.id.loginBtn);
+        loginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(loginIntent);
+                startActivity(menuIntent);
+                finish();
             }
         });
     }
