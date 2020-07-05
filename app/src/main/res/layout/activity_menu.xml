@@ -22,7 +22,7 @@
         android:layout_width="177dp"
         android:layout_height="91dp"
         android:layout_marginTop="32dp"
-        android:text="View Event List"
+        android:text="View Events List"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

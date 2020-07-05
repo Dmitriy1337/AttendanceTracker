@@ -7,12 +7,15 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
+import com.ui.attracker.model.EventsList;
+
 public class MenuActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu);
+
         final Intent scanIntent = new Intent(this, ScanActivity.class);
         final Intent eventListIntent = new Intent(this, EventListActivity.class);
         final Intent logoutIntent = new Intent(this, LogoutActivity.class);
