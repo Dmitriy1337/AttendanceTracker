@@ -16,6 +16,7 @@ import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CaptureRequest;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.Surface;
@@ -26,6 +27,7 @@ import com.google.android.gms.vision.barcode.Barcode;
 import com.google.android.gms.vision.barcode.BarcodeDetector;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
 
@@ -190,17 +192,25 @@ public class ScanActivity extends AppCompatActivity {
 
                 builder.addTarget(surface);
 
-                mCameraDevice.createCaptureSession(Arrays.asList(surface),
+                mCameraDevice.createCaptureSession(Collections.singletonList(surface),
                         new CameraCaptureSession.StateCallback() {
 
                             @Override
                             public void onConfigured(CameraCaptureSession session) {
                                 mCaptureSession = session;
-                                try {
-                                    mCaptureSession.setRepeatingRequest(builder.build(),null,null);
-                                } catch (CameraAccessException e) {
-                                    e.printStackTrace();
-                                }
+                                new Handler().postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        try {
+                                            mCaptureSession.setRepeatingRequest(builder.build(),null,null);
+                                        } catch (CameraAccessException e) {
+                                            Log.e(LOG_TAG, "Failed to start camera preview because it couldn't access camera", e);
+                                        } catch (IllegalStateException e) {
+                                            Log.e(LOG_TAG, "Failed to start camera preview.", e);
+                                        }
+                                    }
+                                }, 500);
+
                             }
 
                             @Override
