@@ -49,7 +49,7 @@ public class NewEventActivity extends AppCompatActivity {
                     Bitmap bitmap = generateQR(LoginActivity.getUsername(getApplicationContext()) + "/" + eventName);
                     saveToInternalStorage(eventName + ".png", bitmap);
                     EventsList.addEvent(new EventsList.Event(bitmap, eventName));
-                    EventListActivity.refreshData();
+                    EventListActivity.notifyDataChange();
 
                     viewEvent.putExtra("EVENT_NUMBER", EventsList.getEventsList().size()-1);
                     startActivity(viewEvent);
@@ -79,6 +79,7 @@ public class NewEventActivity extends AppCompatActivity {
         }
         return bitmap;
     }
+
 
     private void saveToInternalStorage(String name, Bitmap bitmapImage){
         ContextWrapper contextWrapper = new ContextWrapper(getApplicationContext());
