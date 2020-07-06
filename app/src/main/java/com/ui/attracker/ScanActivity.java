@@ -141,6 +141,7 @@ public class ScanActivity extends AppCompatActivity {
 
     public class CameraService
     {
+        
         private static final String LOG_TAG = "CameraService";
 
         private String mCameraID;
