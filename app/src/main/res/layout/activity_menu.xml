@@ -7,32 +7,37 @@
     tools:context=".MenuActivity">
 
     <Button
-        android:id="@+id/scan"
+        android:id="@+id/scanBtn"
         android:layout_width="177dp"
         android:layout_height="91dp"
-        android:layout_marginTop="60dp"
         android:text="Scan"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.34" />
 
     <Button
-        android:id="@+id/eventList"
+        android:id="@+id/eventListBtn"
         android:layout_width="177dp"
         android:layout_height="91dp"
         android:layout_marginTop="32dp"
-        android:text="Event List"
+        android:text="View Events List"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/scan" />
+        app:layout_constraintTop_toBottomOf="@+id/scanBtn"
+        app:layout_constraintVertical_bias="0.12" />
 
     <Button
-        android:id="@+id/newEvent"
-        android:layout_width="177dp"
-        android:layout_height="91dp"
-        android:layout_marginTop="60dp"
-        android:text="New Event"
+        android:id="@+id/logoutBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp"
+        android:text="Logout"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/eventList" />
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
