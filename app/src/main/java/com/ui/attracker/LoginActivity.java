@@ -12,11 +12,13 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.google.android.material.snackbar.Snackbar;
+import com.ui.attracker.model.User;
 
 public class LoginActivity extends AppCompatActivity {
 
     private static final String INVALID_USERNAME_MESSAGE = "Enter a valid username";
     public static final String USERNAME_KEY = "com.ui.attracker.USERNAME";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,9 +27,12 @@ public class LoginActivity extends AppCompatActivity {
 
         final Intent menuIntent = new Intent(this, MenuActivity.class);
         final EditText usernameEditText = findViewById(R.id.editTextUsername);
-        final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
-        if (sharedPreferences.getString(USERNAME_KEY, null) != null) {
+        APIRequests.init();
+
+
+        if (getUsername(getApplicationContext()) != null) {
+            APIRequests.login(getUsername(getApplicationContext()), getApplicationContext());
             startActivity(menuIntent);
             finish();
         }
@@ -37,7 +42,11 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (checkUsernameValidity(usernameEditText.getText().toString())) {
-                    saveUsername(usernameEditText.getText().toString(), sharedPreferences);
+                    String username = usernameEditText.getText().toString();
+                    saveUsername(username, getApplicationContext());
+
+                    APIRequests.login(username, getApplicationContext());
+
                     startActivity(menuIntent);
                     finish();
                 }
@@ -48,11 +57,12 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private boolean checkUsernameValidity(String username) {
-        return username.length() > 0;
+        return username.matches("^[a-z]+.[a-z]+$");
     }
 
-    private void saveUsername(String username, SharedPreferences preferences) {
-        SharedPreferences.Editor editor = preferences.edit();
+    private void saveUsername(String username, Context context) {
+        final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(USERNAME_KEY, username);
         editor.apply();
     }

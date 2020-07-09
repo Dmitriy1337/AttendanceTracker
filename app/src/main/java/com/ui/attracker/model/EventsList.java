@@ -7,50 +7,34 @@ import android.graphics.BitmapFactory;
 
 import androidx.annotation.NonNull;
 
+import com.ui.attracker.EventListActivity;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class EventsList
 {
-    private static ArrayList<Event> eventsList = null;
+    private static ArrayList<Event> eventsList = new ArrayList<>();
 
-    public static void loadEvents(Context context) {
-        if (eventsList != null)
-            return;
-
-        eventsList = new ArrayList<>();
-
-        ContextWrapper contextWrapper = new ContextWrapper(context);
-        File directory = contextWrapper.getDir("images", Context.MODE_PRIVATE);
-
-        for (final File fileEntry : Objects.requireNonNull(directory.listFiles())) {
-            String name = fileEntry.getName().substring(0, fileEntry.getName().length() - 4);
-            addEvent(new Event(Objects.requireNonNull(loadBitmapFromStorage(fileEntry)), name));
-        }
-    }
 
     public static ArrayList<Event> getEventsList() {
         return eventsList;
     }
 
     public static void addEvent(Event event) {
+        if (eventsList == null)
+            eventsList = new ArrayList<>();
         eventsList.add(event);
+
+        if (EventListActivity.eventAdapter != null)
+            EventListActivity.eventAdapter.notifyDataSetChanged();
     }
 
     public static void discardEvents() {
-        eventsList = null;
-    }
-
-    private static Bitmap loadBitmapFromStorage(File file)
-    {
-        try (FileInputStream inpStream = new FileInputStream(file)) {
-            return BitmapFactory.decodeStream(inpStream);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+        eventsList = new ArrayList<>();
     }
 
 
@@ -58,10 +42,12 @@ public class EventsList
     public static class Event {
         Bitmap image;
         String eventName;
+        List<String> attendees;
 
-        public Event(@NonNull Bitmap image, @NonNull String eventName) {
+        public Event(Bitmap image, String eventName) {
             this.image = image;
             this.eventName = eventName;
+            attendees = new ArrayList<>();
         }
 
         public Bitmap getImage() {
@@ -70,6 +56,14 @@ public class EventsList
 
         public String getEventName() {
             return eventName;
+        }
+
+        public List<String> getAttendees() {
+            return attendees;
+        }
+
+        public void addAttendee(String name) {
+            attendees.add(name);
         }
     }
 }

@@ -19,9 +19,9 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.ui.attracker.model.EventsList;
 
 
-public class EventListActivity extends AppCompatActivity {
+public class EventListActivity extends AppCompatActivity{
 
-    static ArrayAdapter<EventsList.Event> eventAdapter;
+    public static ArrayAdapter<EventsList.Event> eventAdapter = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,10 +39,6 @@ public class EventListActivity extends AppCompatActivity {
                 startActivity(addEvent);
             }
         });
-
-
-        // initialize EventsList.eventsList which stores all events
-        EventsList.loadEvents(getApplicationContext());
 
 
         final GridView eventsGrid = findViewById(R.id.eventsGridView);
@@ -78,9 +74,5 @@ public class EventListActivity extends AppCompatActivity {
                 startActivity(viewEvent);
             }
         });
-    }
-
-    public static void notifyDataChange() {
-        eventAdapter.notifyDataSetChanged();
     }
 }

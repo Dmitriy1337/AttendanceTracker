@@ -14,7 +14,6 @@ import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CaptureRequest;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -26,8 +25,8 @@ import com.google.android.gms.vision.Frame;
 import com.google.android.gms.vision.barcode.Barcode;
 import com.google.android.gms.vision.barcode.BarcodeDetector;
 
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
 
@@ -39,6 +38,9 @@ public class ScanActivity extends AppCompatActivity {
     private CameraService mCamera = null;
 
     private Intent scannedIntent;
+
+    private static volatile AtomicBoolean decoderBusy = new AtomicBoolean(false);
+    private static BarcodeDetector barcodeDetector = null;
 
 
     @Override
@@ -81,7 +83,12 @@ public class ScanActivity extends AppCompatActivity {
 
             @Override
             public void onSurfaceTextureUpdated(@NonNull SurfaceTexture surfaceTexture) {
-                new BitmapDecoder().execute(mTextureView.getBitmap());
+                synchronized (decoderBusy) {
+                    if (!decoderBusy.get()) {
+                        decoderBusy.set(true);
+                        new BitmapDecoder(mTextureView.getBitmap());
+                    }
+                }
             }
         });
     }
@@ -103,36 +110,38 @@ public class ScanActivity extends AppCompatActivity {
 
     static boolean checkBarcodeValidity(String value) {
         // TODO check validity
-        return value.length() > 0;
+        return value.matches("^[a-zA-Z0-9_\\-]+/[a-z-A-Z0-9\\s]+$");
     }
 
 
 
-    class BitmapDecoder extends AsyncTask<Bitmap, Void, String> {
+    class BitmapDecoder implements Runnable {
 
-        public BitmapDecoder() {
-            super();
+        Bitmap bitmapToDecode;
+
+        public BitmapDecoder(Bitmap bitmap) {
+            bitmapToDecode = bitmap;
+            new Thread(this).start();
         }
 
         @Override
-        protected String doInBackground(Bitmap... bitmaps) {
-            Bitmap bitmap = bitmaps[0];
-            BarcodeDetector barcodeDetector = new BarcodeDetector.Builder(getApplicationContext())
-                    .setBarcodeFormats(Barcode.QR_CODE)
-                    .build();
-            Frame frame = new Frame.Builder().setBitmap(bitmap).build();
+        public void run() {
+            if (barcodeDetector == null)
+                barcodeDetector = new BarcodeDetector.Builder(getApplicationContext())
+                        .setBarcodeFormats(Barcode.QR_CODE)
+                        .build();
+
+            Frame frame = new Frame.Builder().setBitmap(bitmapToDecode).build();
             SparseArray<Barcode> barcodes = barcodeDetector.detect(frame);
-            return barcodes.size() > 0 ? barcodes.valueAt(0).rawValue : "";
-        }
 
-        @Override
-        protected void onPostExecute(String value) {
-            super.onPostExecute(value);
+            String value = barcodes.size() > 0 ? barcodes.valueAt(0).rawValue : "";
             if (checkBarcodeValidity(value)) {
                 scannedIntent.putExtra("BARCODE_VALUE", value);
                 startActivity(scannedIntent);
                 finish();
             }
+            decoderBusy.set(false);
+
         }
     }
 
@@ -153,31 +162,6 @@ public class ScanActivity extends AppCompatActivity {
             mCameraManager = cameraManager;
             mCameraID = cameraID;
         }
-
-
-        private CameraDevice.StateCallback mCameraCallback = new CameraDevice.StateCallback() {
-
-            @Override
-            public void onOpened(CameraDevice camera) {
-                mCameraDevice = camera;
-                Log.i(LOG_TAG, "Open camera  with id:"+ mCameraDevice.getId());
-
-                createCameraPreviewSession();
-            }
-
-            @Override
-            public void onDisconnected(CameraDevice camera) {
-                mCameraDevice.close();
-
-                Log.i(LOG_TAG, "disconnect camera  with id:"+ mCameraDevice.getId());
-                mCameraDevice = null;
-            }
-
-            @Override
-            public void onError(CameraDevice camera, int error) {
-                Log.i(LOG_TAG, "error! camera id:"+camera.getId()+" error:"+error);
-            }
-        };
 
 
         private void createCameraPreviewSession() {
@@ -223,9 +207,31 @@ public class ScanActivity extends AppCompatActivity {
             }
         }
 
-        public boolean isOpen() {
-            return mCameraDevice != null;
-        }
+
+        private CameraDevice.StateCallback mCameraCallback = new CameraDevice.StateCallback() {
+
+            @Override
+            public void onOpened(CameraDevice camera) {
+                mCameraDevice = camera;
+                Log.i(LOG_TAG, "Open camera  with id:"+ mCameraDevice.getId());
+
+                createCameraPreviewSession();
+            }
+
+            @Override
+            public void onDisconnected(CameraDevice camera) {
+                mCameraDevice.close();
+
+                Log.i(LOG_TAG, "disconnect camera  with id:"+ mCameraDevice.getId());
+                mCameraDevice = null;
+            }
+
+            @Override
+            public void onError(CameraDevice camera, int error) {
+                Log.i(LOG_TAG, "error! camera id:"+camera.getId()+" error:"+error);
+            }
+        };
+
 
         public void openCamera() {
             try {
@@ -244,6 +250,10 @@ public class ScanActivity extends AppCompatActivity {
                 mCameraDevice.close();
                 mCameraDevice = null;
             }
+        }
+
+        public boolean isOpen() {
+            return mCameraDevice != null;
         }
     }
 }

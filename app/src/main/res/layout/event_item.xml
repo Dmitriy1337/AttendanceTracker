@@ -34,12 +34,14 @@
 
             <TextView
                 android:id="@+id/eventNameTextView"
-                android:layout_width="152dp"
-                android:layout_height="31dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
                 android:text="TextView"
                 android:textAlignment="center"
-                android:textColor="@color/wallet_bright_foreground_holo_light"
+                android:textColor="@color/design_default_color_on_secondary"
                 android:textSize="18sp"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/qrImage" />
