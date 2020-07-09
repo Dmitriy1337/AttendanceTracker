@@ -56,19 +56,16 @@ public class ScanActivity extends AppCompatActivity {
         }
 
 
-        mCameraManager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
-        mCamera = new CameraService(mCameraManager, CAMERA_ID);
-
-        mCamera.openCamera();
-
-
         scannedIntent = new Intent(this, SuccessfullyScannedActivity.class);
         scannedIntent.addFlags(FLAG_ACTIVITY_SINGLE_TOP);
 
         mTextureView.setSurfaceTextureListener(new TextureView.SurfaceTextureListener() {
             @Override
             public void onSurfaceTextureAvailable(@NonNull SurfaceTexture surfaceTexture, int i, int i1) {
-                //
+                mCameraManager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
+                mCamera = new CameraService(mCameraManager, CAMERA_ID);
+
+                mCamera.openCamera();
             }
 
             @Override
@@ -97,7 +94,7 @@ public class ScanActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (!mCamera.isOpen())
+        if (mCamera != null && !mCamera.isOpen())
             mCamera.openCamera();
     }
 
