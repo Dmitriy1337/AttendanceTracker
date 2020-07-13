@@ -42,12 +42,10 @@ public class EventsList
     public static class Event {
         Bitmap image;
         String eventName;
-        List<String> attendees;
 
         public Event(Bitmap image, String eventName) {
             this.image = image;
             this.eventName = eventName;
-            attendees = new ArrayList<>();
         }
 
         public Bitmap getImage() {
@@ -56,14 +54,6 @@ public class EventsList
 
         public String getEventName() {
             return eventName;
-        }
-
-        public List<String> getAttendees() {
-            return attendees;
-        }
-
-        public void addAttendee(String name) {
-            attendees.add(name);
         }
     }
 }

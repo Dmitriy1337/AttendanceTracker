@@ -3,6 +3,7 @@ package com.ui.attracker;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.widget.ArrayAdapter;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -67,9 +68,6 @@ public class APIRequests {
         });
     }
 
-    public static boolean userExists(String username) {
-        return true;
-    }
 
     public static void addEvent(String name, Context context) {
         if (user == null)
@@ -90,13 +88,12 @@ public class APIRequests {
             return;
         }
 
-
         final DatabaseReference myRef = database.getReference("users").child(userKey).child("attendees").child(eventName);
 
         myRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()) {
+                if (snapshot.hasChildren()) {
                     for (DataSnapshot childSnapshot : snapshot.getChildren())
                         if (childSnapshot.getValue().equals(user.getUsername())) {
                             activity.setMessage("You are already registered");
@@ -107,6 +104,35 @@ public class APIRequests {
 
                 } else
                     activity.setMessage("Failed to add you");
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    public static void retrieveAttendees(String eventName, final ArrayAdapter<String> adapter) {
+        database.getReference("users").child(user.getKey()).child("attendees").child(eventName).addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                adapter.add(snapshot.getValue(String.class));
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
             }
 
             @Override

@@ -3,14 +3,8 @@ package com.ui.attracker.model;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.util.Log;
-
-import com.ui.attracker.BuildConfig;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -61,7 +55,7 @@ public class User
         for (String event : events) {
             Bitmap bitmap;
             if (!fileNames.contains(event)) {
-                bitmap = generateQR(event);
+                bitmap = generateQR(key + "/" + event);
                 saveBitmapToInternalStorage(event, bitmap, context);
             } else
                 bitmap = loadBitmapFromStorage(event, context);
@@ -71,23 +65,11 @@ public class User
 
     }
 
-    public void addEvent(String name, Context context) {
-        this.events.add(name);
+    public void addEvent(String eventName, Context context) {
+        this.events.add(eventName);
 
-        Bitmap bitmap = generateQR(key + "/" + name);
-        saveBitmapToInternalStorage(name, bitmap, context);
-        EventsList.addEvent(new EventsList.Event(bitmap, name));
-    }
-
-    public List<String> addAttendee(String eventName, String username) {
-        if (!events.contains(eventName))
-            throw new AssertionError("Assertion failed");
-
-        for (EventsList.Event event : EventsList.getEventsList())
-            if (event.getEventName().equals(eventName)) {
-                event.addAttendee(username);
-                return event.getAttendees();
-            }
-        return null;
+        Bitmap bitmap = generateQR(key + "/" + eventName);
+        saveBitmapToInternalStorage(eventName, bitmap, context);
+        EventsList.addEvent(new EventsList.Event(bitmap, eventName));
     }
 }

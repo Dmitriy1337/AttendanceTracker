@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.ui.attracker.model.EventsList;
 
@@ -19,6 +20,9 @@ public class MenuActivity extends AppCompatActivity {
         final Intent scanIntent = new Intent(this, ScanActivity.class);
         final Intent eventListIntent = new Intent(this, EventListActivity.class);
         final Intent logoutIntent = new Intent(this, LogoutActivity.class);
+
+        TextView usernameTextView = findViewById(R.id.usernameTextView);
+        usernameTextView.setText("You are logged in as " + LoginActivity.getUsername(getApplicationContext()));
 
         Button scanBtn = findViewById(R.id.scanBtn);
         scanBtn.setOnClickListener(new View.OnClickListener() {

@@ -45,20 +45,28 @@ public class EventListActivity extends AppCompatActivity{
         eventsGrid.setNumColumns(2);
 
 
-        eventAdapter = new ArrayAdapter<EventsList.Event>(this, 0, EventsList.getEventsList()) {
+        eventAdapter = (eventAdapter != null) ? eventAdapter : new ArrayAdapter<EventsList.Event>(this, 0, EventsList.getEventsList()) {
             @NonNull
             @Override
             public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
                 EventsList.Event currentEvent = getItem(position);
-                if(convertView == null)
+
+                CardViewViewHolder viewHolder;
+                if (convertView == null) {
                     convertView = getLayoutInflater()
                             .inflate(R.layout.event_item, null, false);
+                    viewHolder = new CardViewViewHolder();
+                    viewHolder.qrImage = convertView.findViewById(R.id.qrImage);
+                    viewHolder.eventNameTextView = convertView.findViewById(R.id.eventNameTextView);
+                    convertView.setTag(viewHolder);
+                } else
+                    viewHolder = (CardViewViewHolder) convertView.getTag();
 
                 if (currentEvent == null)
                         return convertView;
 
-                ImageView qrImage = convertView.findViewById(R.id.qrImage);
-                TextView eventNameTextView = convertView.findViewById(R.id.eventNameTextView);
+                ImageView qrImage = viewHolder.qrImage;
+                TextView eventNameTextView = viewHolder.eventNameTextView;
                 qrImage.setImageBitmap(Bitmap.createScaledBitmap(currentEvent.getImage(), eventsGrid.getColumnWidth(), eventsGrid.getColumnWidth(), false));
                 eventNameTextView.setText(currentEvent.getEventName());
                 return convertView;
@@ -74,5 +82,11 @@ public class EventListActivity extends AppCompatActivity{
                 startActivity(viewEvent);
             }
         });
+    }
+
+
+    static class CardViewViewHolder {
+        ImageView qrImage;
+        TextView eventNameTextView;
     }
 }

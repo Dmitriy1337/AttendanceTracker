@@ -25,7 +25,12 @@ import com.google.android.gms.vision.Frame;
 import com.google.android.gms.vision.barcode.Barcode;
 import com.google.android.gms.vision.barcode.BarcodeDetector;
 
+import java.util.ArrayDeque;
 import java.util.Collections;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
@@ -39,8 +44,8 @@ public class ScanActivity extends AppCompatActivity {
 
     private Intent scannedIntent;
 
-    private static volatile AtomicBoolean decoderBusy = new AtomicBoolean(false);
     private static BarcodeDetector barcodeDetector = null;
+    volatile static boolean decoderBusy = false;
 
 
     @Override
@@ -80,11 +85,9 @@ public class ScanActivity extends AppCompatActivity {
 
             @Override
             public void onSurfaceTextureUpdated(@NonNull SurfaceTexture surfaceTexture) {
-                synchronized (decoderBusy) {
-                    if (!decoderBusy.get()) {
-                        decoderBusy.set(true);
-                        new BitmapDecoder(mTextureView.getBitmap());
-                    }
+                if (!decoderBusy) {
+                    decoderBusy = true;
+                    new BitmapDecoder(mTextureView.getBitmap());
                 }
             }
         });
@@ -116,8 +119,8 @@ public class ScanActivity extends AppCompatActivity {
 
         Bitmap bitmapToDecode;
 
-        public BitmapDecoder(Bitmap bitmap) {
-            bitmapToDecode = bitmap;
+        public BitmapDecoder(Bitmap bitmapToDecode) {
+            this.bitmapToDecode = bitmapToDecode;
             new Thread(this).start();
         }
 
@@ -137,8 +140,7 @@ public class ScanActivity extends AppCompatActivity {
                 startActivity(scannedIntent);
                 finish();
             }
-            decoderBusy.set(false);
-
+            decoderBusy = false;
         }
     }
 
