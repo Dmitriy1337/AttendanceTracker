@@ -11,7 +11,16 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".SuccessfullyScannedActivity"></activity>
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.ui.attracker.fileprovider"
+            android:grantUriPermissions="true"
+            android:exported="false">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/filepaths" />
+        </provider>
+        <activity android:name=".SuccessfullyScannedActivity" />
         <activity android:name=".ViewEventActivity" />
         <activity android:name=".LogoutActivity" />
         <activity android:name=".NewEventActivity" />

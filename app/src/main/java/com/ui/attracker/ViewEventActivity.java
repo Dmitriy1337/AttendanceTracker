@@ -1,6 +1,9 @@
 package com.ui.attracker;
 
+import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.View;
@@ -11,9 +14,20 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ShareCompat;
+import androidx.core.content.FileProvider;
 
-import com.google.android.material.snackbar.Snackbar;
+import com.ui.attracker.model.Event;
 import com.ui.attracker.model.EventsList;
+
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+
+import java.io.File;
+import java.util.ArrayList;
 
 
 public class ViewEventActivity extends AppCompatActivity {
@@ -36,7 +50,8 @@ public class ViewEventActivity extends AppCompatActivity {
         ImageView qrImageOpened = findViewById(R.id.qrImageOpened);
         qrImageOpened.setAdjustViewBounds(true);
 
-        Button shareBtn = findViewById(R.id.shareBtn);
+        final Button shareAttendeesBtn = findViewById(R.id.shareAttendeesBtn);
+        Button shareImageBtn = findViewById(R.id.shareImageBtn);
 
 
         DisplayMetrics metrics = new DisplayMetrics();
@@ -46,23 +61,116 @@ public class ViewEventActivity extends AppCompatActivity {
 
 
         if (eventNumber >= 0) {
-            EventsList.Event event = EventsList.getEventsList().get(eventNumber);
+            final Event event = EventsList.getEventsList().get(eventNumber);
             if (event == null)
                 return;
             eventNameOpenedTextView.setText(event.getEventName());
             qrImageOpened.setImageBitmap(event.getImage());
 
-            ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.simple_list_item, R.id.text1);
+            final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.simple_list_item, R.id.text1);
             listView.setAdapter(adapter);
-            APIRequests.retrieveAttendees(event.getEventName(), adapter);
+            APIRequests.retrieveAttendees(event.getEventKey(), adapter);
 
-            shareBtn.setOnClickListener(new View.OnClickListener() {
+            shareAttendeesBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Snackbar.make(view, "Tap", Snackbar.LENGTH_LONG).show();
+                    shareAttendees(event, adapter, getApplicationContext());
+                }
+            });
+
+            shareImageBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    shareImage(event, getApplicationContext());
                 }
             });
         }
+    }
+
+    public void shareImage(Event event, Context context) {
+        InternalStorage.saveBitmapToInternalStorage(event.getEventName(), event.getImage(), context);
+
+        File file = new File(InternalStorage.getBitmapDirectory(context), event.getEventName() + ".png");
+        Uri uri = FileProvider.getUriForFile(getApplicationContext(), "com.ui.attracker.fileprovider", file);
+
+        Intent intent = ShareCompat.IntentBuilder.from(this)
+                .setType("application/png")
+                .setStream(uri)
+                .setChooserTitle("Choose a sender")
+                .createChooserIntent()
+                .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+        this.startActivity(intent);
+    }
+
+    public void shareAttendees(Event event, ArrayAdapter<String> adapter, Context context) {
+        ArrayList<String> attendees = new ArrayList<>();
+        for (int i = 0; i < adapter.getCount(); i++)
+            attendees.add(adapter.getItem(i));
+
+        String eventName = event.getEventName();
+        Workbook workbook = createAttendeesTable(eventName, attendees);
+        InternalStorage.saveWorkbookToInternalStorage(eventName, workbook, context);
+
+        File file = new File(InternalStorage.getWorkbookDirectory(context), event.getEventName() + ".xls");
+        Uri uri = FileProvider.getUriForFile(getApplicationContext(), "com.ui.attracker.fileprovider", file);
+
+        Intent intent = ShareCompat.IntentBuilder.from(this)
+                .setType("application/xls")
+                .setStream(uri)
+                .setChooserTitle("Choose a sender")
+                .createChooserIntent()
+                .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+        this.startActivity(intent);
+    }
+
+    public Workbook createAttendeesTable(String eventName, ArrayList<String> attendees) {
+
+        String date = "-";
+        if (eventName.length() >= 11) {
+            String dateSubstring = eventName.substring(eventName.length() - 10);
+            if (dateSubstring.matches("^(0[1-9]|[12][0-9]|3[01])[- /.](0[1-9]|1[012])[- /.](19|20)\\d\\d$")) {
+                date = dateSubstring;
+                eventName = eventName.substring(0, eventName.length() - 11);
+            }
+        }
+
+        Workbook workbook = new HSSFWorkbook();
+        Cell cell;
+        Sheet sheet;
+
+        sheet = workbook.createSheet("Attendees");
+
+        Row row = sheet.createRow(0);
+        cell = row.createCell(0);
+        cell.setCellValue("Event:");
+        cell = row.createCell(1);
+        cell.setCellValue(eventName);
+
+        row = sheet.createRow(1);
+        cell = row.createCell(0);
+        cell.setCellValue("Date:");
+        cell = row.createCell(1);
+        cell.setCellValue(date);
+
+        sheet.createRow(2);
+        row = sheet.createRow(3);
+        row.createCell(0).setCellValue("Attendees:");
+
+        int index = 4;
+        for (String attendee : attendees) {
+            row = sheet.createRow(index++);
+            cell = row.createCell(0);
+            cell.setCellValue(attendee);
+            cell = row.createCell(1);
+            cell.setCellValue("1");
+        }
+
+        sheet.setColumnWidth(0, (15 * 500));
+        sheet.setColumnWidth(1, (15 * 500));
+
+        return workbook;
     }
 
     public static int dpToPx(int dp) {

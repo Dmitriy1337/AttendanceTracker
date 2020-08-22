@@ -16,12 +16,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.ui.attracker.model.Event;
 import com.ui.attracker.model.EventsList;
 
 
 public class EventListActivity extends AppCompatActivity{
 
-    public static ArrayAdapter<EventsList.Event> eventAdapter = null;
+    public static ArrayAdapter<Event> eventAdapter = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,13 +44,14 @@ public class EventListActivity extends AppCompatActivity{
 
         final GridView eventsGrid = findViewById(R.id.eventsGridView);
         eventsGrid.setNumColumns(2);
+        eventsGrid.setVerticalSpacing(0);
+        eventsGrid.setHorizontalSpacing(0);
 
-
-        eventAdapter = (eventAdapter != null) ? eventAdapter : new ArrayAdapter<EventsList.Event>(this, 0, EventsList.getEventsList()) {
+        eventAdapter = (eventAdapter != null) ? eventAdapter : new ArrayAdapter<Event>(this, 0, EventsList.getEventsList()) {
             @NonNull
             @Override
             public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-                EventsList.Event currentEvent = getItem(position);
+                Event currentEvent = getItem(position);
 
                 CardViewViewHolder viewHolder;
                 if (convertView == null) {

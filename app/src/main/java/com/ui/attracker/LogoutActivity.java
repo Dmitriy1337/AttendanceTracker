@@ -28,10 +28,10 @@ public class LogoutActivity extends AppCompatActivity {
         final Intent loginIntent = new Intent(this, LoginActivity.class);
         final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
-        // TODO: logout logic
         deleteUsername(sharedPreferences);
-        deleteFiles(getApplicationContext());
+        InternalStorage.deleteAllFiles(getApplicationContext());
         EventsList.discardEvents();
+        EventListActivity.eventAdapter = null;
 
         loginIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(loginIntent);
@@ -41,12 +41,5 @@ public class LogoutActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = preferences.edit();
         editor.remove(USERNAME_KEY);
         editor.apply();
-    }
-
-    private void deleteFiles(Context context) {
-        ContextWrapper contextWrapper = new ContextWrapper(context);
-        File directory = contextWrapper.getDir("images", Context.MODE_PRIVATE);
-        for (final File fileEntry : Objects.requireNonNull(directory.listFiles()))
-            fileEntry.delete();
     }
 }

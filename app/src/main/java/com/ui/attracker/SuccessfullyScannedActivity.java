@@ -18,8 +18,8 @@ public class SuccessfullyScannedActivity extends AppCompatActivity {
         String content = getIntent().getStringExtra("BARCODE_VALUE");
 
         String userKey = content.substring(0, content.indexOf('/'));
-        String eventName = content.substring(content.indexOf('/') + 1);
-        APIRequests.addAttendee(eventName, userKey, this);
+        String eventKey = content.substring(content.indexOf('/') + 1);
+        APIRequests.addAttendee(eventKey, userKey, this);
     }
 
     public void setMessage(String message) {

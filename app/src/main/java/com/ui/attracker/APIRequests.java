@@ -37,6 +37,63 @@ public class APIRequests {
         }
     }
 
+    public static void getCourses(final ArrayAdapter<String> adapter) {
+        database.getReference("courses").addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                adapter.add(snapshot.getValue(String.class));
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    public static void getEventTypes(final ArrayAdapter<String> adapter) {
+        database.getReference("eventtypes").addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                adapter.add(snapshot.getValue(String.class));
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
 
     public static void login(final String username, final Context context) {
         database.getReference("users").addListenerForSingleValueEvent(new ValueEventListener() {
@@ -69,26 +126,31 @@ public class APIRequests {
     }
 
 
-    public static void addEvent(String name, Context context) {
+    public static String addEvent(String eventName, Context context) {
         if (user == null)
-            return;
+            return "None";
 
-        user.addEvent(name, context);
+        DatabaseReference dataRef =  database.getReference("users").child(user.getKey()).child("attendees").push();
+        String eventKey = dataRef.getKey();
+        dataRef.push().setValue(user.getUsername());
+        dataRef.child("eventname").setValue(eventName);
+
+        user.addEvent(eventName, eventKey, context);
 
         Map<String, Object> map = new HashMap<>();
         map.put("events", user.getEvents());
         database.getReference("users").child(user.getKey()).updateChildren(map);
 
-        database.getReference("users").child(user.getKey()).child("attendees").child(name).push().setValue(user.getUsername());
+        return eventKey;
     }
 
-    public static void addAttendee(String eventName, String userKey, final SuccessfullyScannedActivity activity) {
+    public static void addAttendee(String eventKey, String userKey, final SuccessfullyScannedActivity activity) {
         if (user == null) {
             activity.setMessage("Error");
             return;
         }
 
-        final DatabaseReference myRef = database.getReference("users").child(userKey).child("attendees").child(eventName);
+        final DatabaseReference myRef = database.getReference("users").child(userKey).child("attendees").child(eventKey);
 
         myRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -113,11 +175,12 @@ public class APIRequests {
         });
     }
 
-    public static void retrieveAttendees(String eventName, final ArrayAdapter<String> adapter) {
-        database.getReference("users").child(user.getKey()).child("attendees").child(eventName).addChildEventListener(new ChildEventListener() {
+    public static void retrieveAttendees(String eventKey, final ArrayAdapter<String> adapter) {
+        database.getReference("users").child(user.getKey()).child("attendees").child(eventKey).addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                adapter.add(snapshot.getValue(String.class));
+                if (!snapshot.getKey().equals("eventname"))
+                    adapter.add(snapshot.getValue(String.class));
             }
 
             @Override

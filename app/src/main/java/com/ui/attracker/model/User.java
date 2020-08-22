@@ -1,13 +1,13 @@
 package com.ui.attracker.model;
 
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.graphics.Bitmap;
+
+import com.ui.attracker.InternalStorage;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import static com.ui.attracker.InternalStorage.loadBitmapFromStorage;
 import static com.ui.attracker.InternalStorage.saveBitmapToInternalStorage;
@@ -41,11 +41,10 @@ public class User
 
 
     public void updateEvents(Context context) {
-        ContextWrapper contextWrapper = new ContextWrapper(context);
-        File directory = contextWrapper.getDir("images", Context.MODE_PRIVATE);
+        File directory = InternalStorage.getBitmapDirectory(context);
 
         ArrayList<String> fileNames = new ArrayList<>();
-        for (final File fileEntry : Objects.requireNonNull(directory.listFiles())) {
+        for (final File fileEntry : directory.listFiles()) {
             String name = fileEntry.getName().substring(0, fileEntry.getName().length() - 4);
             fileNames.add(name);
         }
@@ -53,23 +52,26 @@ public class User
         if (events == null)
             events = new ArrayList<>();
         for (String event : events) {
-            Bitmap bitmap;
-            if (!fileNames.contains(event)) {
-                bitmap = generateQR(key + "/" + event);
-                saveBitmapToInternalStorage(event, bitmap, context);
-            } else
-                bitmap = loadBitmapFromStorage(event, context);
+            String eventName = event.substring(0, event.indexOf('/'));
+            String eventKey = event.substring(event.indexOf('/') + 1);
 
-            EventsList.addEvent(new EventsList.Event(bitmap, event));
+            Bitmap bitmap;
+            if (!fileNames.contains(eventName)) {
+                bitmap = generateQR(key + "/" + eventKey);
+                saveBitmapToInternalStorage(eventName + "\\" + eventKey, bitmap, context);
+            } else
+                bitmap = loadBitmapFromStorage(eventName + "\\" + eventKey, context);
+
+            EventsList.addEvent(new Event(bitmap, eventName, eventKey));
         }
 
     }
 
-    public void addEvent(String eventName, Context context) {
-        this.events.add(eventName);
+    public void addEvent(String eventName, String eventKey, Context context) {
+        this.events.add(eventName + "/" + eventKey);
 
-        Bitmap bitmap = generateQR(key + "/" + eventName);
-        saveBitmapToInternalStorage(eventName, bitmap, context);
-        EventsList.addEvent(new EventsList.Event(bitmap, eventName));
+        Bitmap bitmap = generateQR(key + "/" + eventKey);
+        saveBitmapToInternalStorage(eventName + "\\" + eventKey, bitmap, context);
+        EventsList.addEvent(new Event(bitmap, eventName, eventKey));
     }
 }

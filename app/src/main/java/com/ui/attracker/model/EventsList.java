@@ -1,19 +1,8 @@
 package com.ui.attracker.model;
 
-import android.content.Context;
-import android.content.ContextWrapper;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-
-import androidx.annotation.NonNull;
-
 import com.ui.attracker.EventListActivity;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 
 public class EventsList
 {
@@ -37,23 +26,4 @@ public class EventsList
         eventsList = new ArrayList<>();
     }
 
-
-
-    public static class Event {
-        Bitmap image;
-        String eventName;
-
-        public Event(Bitmap image, String eventName) {
-            this.image = image;
-            this.eventName = eventName;
-        }
-
-        public Bitmap getImage() {
-            return image;
-        }
-
-        public String getEventName() {
-            return eventName;
-        }
-    }
 }

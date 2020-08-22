@@ -110,7 +110,7 @@ public class ScanActivity extends AppCompatActivity {
 
     static boolean checkBarcodeValidity(String value) {
         // TODO check validity
-        return value.matches("^[a-zA-Z0-9_\\-]+/[a-z-A-Z0-9\\s]+$");
+        return value.matches("^[a-zA-Z0-9_\\-]+/[a-zA-Z0-9_\\-]+$");
     }
 
 
